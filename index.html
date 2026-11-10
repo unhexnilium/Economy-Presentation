@@ -18,14 +18,15 @@ body.idle{cursor:none}
   color:var(--ink);transition:color 1.6s linear;transform:translate(-50%,-50%)}
 #stage.light{color:var(--navy)}
 #cv{position:absolute;left:0;top:0;width:1920px;height:1080px;display:block}
-.t{position:absolute;overflow:hidden;white-space:nowrap;line-height:1.25;letter-spacing:-.02em;
-  font-weight:600;padding:.04em .06em .1em .02em;pointer-events:none}
+.t{position:absolute;overflow:hidden;white-space:nowrap;line-height:1.16;letter-spacing:-.045em;
+  font-weight:300;padding:.06em .08em .1em .02em;pointer-events:none}
+.t b{font-weight:800}
 .t>span{display:inline-block;transform:translateY(118%);transition:transform 620ms cubic-bezier(.6,0,.85,.35)}
 .t.on>span{transform:none;transition:transform var(--dur) var(--ease)}
-.t.refs{white-space:normal;width:1500px;font-weight:400;letter-spacing:0;line-height:1.75}
+.t.refs{white-space:normal;width:1540px;font-weight:400;letter-spacing:0;line-height:1.62}
 .t.refs i{font-style:italic}
-.m{position:absolute;font:400 16px/1.5 var(--sans);opacity:.5;white-space:nowrap;pointer-events:none;bottom:36px}
-#mBL{left:48px}#mBR{right:48px;text-align:right;font-variant-numeric:tabular-nums}
+.m{position:absolute;font:400 21px/1.5 var(--sans);opacity:.72;white-space:nowrap;pointer-events:none;bottom:34px}
+#mBL{left:48px}
 #notes{position:fixed;left:0;right:0;bottom:0;max-height:48vh;overflow:auto;box-sizing:border-box;
   background:rgba(6,12,30,.95);color:#dfe8f5;border-top:1px solid rgba(140,196,238,.35);
   font:400 16px/1.7 var(--sans);padding:18px 32px 26px;transform:translateY(102%);transition:transform .45s var(--ease);z-index:5}
@@ -40,13 +41,219 @@ body.notes #notes{transform:none}
 <div id="stage">
   <canvas id="cv"></canvas>
   <div class="m" id="mBL"></div>
-  <div class="m" id="mBR"></div>
 </div>
 <div id="notes"></div>
 
-<!-- 실제 지수 데이터를 쓰려면 아래 블록 안에 CSV 텍스트를 붙여 넣는다 (또는 CSV 파일을 창에 끌어다 놓는다).
+<!-- 주가 자료: S&P 500 월별 지수 1996-01 ~ 2012-12 (R. J. Shiller 공개 자료, datahub.io core/s-and-p-500 정리본).
+     다른 자료를 쓰려면 아래 블록의 CSV 텍스트를 바꾸거나 CSV 파일을 창에 끌어다 놓는다.
      헤더에 Close / 종가 / Price 열이 있으면 그 열을, 없으면 마지막 숫자 열을 사용한다. 행은 시간 오름차순. -->
-<script id="stock-csv" type="text/plain"></script>
+<script id="stock-csv" type="text/plain">
+Date,SP500
+1996-01,614.42
+1996-02,649.54
+1996-03,647.07
+1996-04,647.17
+1996-05,661.23
+1996-06,668.5
+1996-07,644.07
+1996-08,662.68
+1996-09,674.88
+1996-10,701.46
+1996-11,735.67
+1996-12,743.25
+1997-01,766.22
+1997-02,798.39
+1997-03,792.16
+1997-04,763.93
+1997-05,833.09
+1997-06,876.29
+1997-07,925.29
+1997-08,927.24
+1997-09,937.02
+1997-10,951.16
+1997-11,938.92
+1997-12,962.37
+1998-01,963.36
+1998-02,1023.74
+1998-03,1076.83
+1998-04,1112.2
+1998-05,1108.42
+1998-06,1108.39
+1998-07,1156.58
+1998-08,1074.62
+1998-09,1020.64
+1998-10,1032.47
+1998-11,1144.43
+1998-12,1190.05
+1999-01,1248.77
+1999-02,1246.58
+1999-03,1281.66
+1999-04,1334.76
+1999-05,1332.07
+1999-06,1322.55
+1999-07,1380.99
+1999-08,1327.49
+1999-09,1318.17
+1999-10,1300.01
+1999-11,1391.0
+1999-12,1428.68
+2000-01,1425.59
+2000-02,1388.87
+2000-03,1442.21
+2000-04,1461.36
+2000-05,1418.48
+2000-06,1461.96
+2000-07,1473.0
+2000-08,1485.46
+2000-09,1468.05
+2000-10,1390.14
+2000-11,1378.04
+2000-12,1330.93
+2001-01,1335.63
+2001-02,1305.75
+2001-03,1185.85
+2001-04,1189.84
+2001-05,1270.37
+2001-06,1238.71
+2001-07,1204.45
+2001-08,1178.5
+2001-09,1044.64
+2001-10,1076.59
+2001-11,1129.68
+2001-12,1144.93
+2002-01,1140.21
+2002-02,1100.67
+2002-03,1153.79
+2002-04,1111.93
+2002-05,1079.25
+2002-06,1014.02
+2002-07,903.59
+2002-08,912.55
+2002-09,867.81
+2002-10,854.63
+2002-11,909.93
+2002-12,899.18
+2003-01,895.84
+2003-02,837.03
+2003-03,846.63
+2003-04,890.03
+2003-05,935.96
+2003-06,988.0
+2003-07,992.54
+2003-08,989.53
+2003-09,1019.44
+2003-10,1038.73
+2003-11,1049.9
+2003-12,1080.64
+2004-01,1132.52
+2004-02,1143.36
+2004-03,1123.98
+2004-04,1133.36
+2004-05,1102.78
+2004-06,1132.76
+2004-07,1105.85
+2004-08,1088.94
+2004-09,1117.66
+2004-10,1117.21
+2004-11,1168.94
+2004-12,1199.21
+2005-01,1181.41
+2005-02,1199.63
+2005-03,1194.9
+2005-04,1164.43
+2005-05,1178.28
+2005-06,1202.25
+2005-07,1222.24
+2005-08,1224.27
+2005-09,1225.92
+2005-10,1191.96
+2005-11,1237.37
+2005-12,1262.07
+2006-01,1278.73
+2006-02,1276.65
+2006-03,1293.74
+2006-04,1302.17
+2006-05,1290.01
+2006-06,1253.17
+2006-07,1260.24
+2006-08,1287.15
+2006-09,1317.74
+2006-10,1363.38
+2006-11,1388.64
+2006-12,1416.42
+2007-01,1424.16
+2007-02,1444.8
+2007-03,1406.95
+2007-04,1463.64
+2007-05,1511.14
+2007-06,1514.19
+2007-07,1520.71
+2007-08,1454.62
+2007-09,1497.12
+2007-10,1539.66
+2007-11,1463.39
+2007-12,1479.22
+2008-01,1378.76
+2008-02,1354.87
+2008-03,1316.94
+2008-04,1370.47
+2008-05,1403.22
+2008-06,1341.25
+2008-07,1257.33
+2008-08,1281.47
+2008-09,1216.95
+2008-10,968.8
+2008-11,883.04
+2008-12,877.56
+2009-01,865.58
+2009-02,805.23
+2009-03,757.13
+2009-04,848.15
+2009-05,902.41
+2009-06,926.12
+2009-07,935.82
+2009-08,1009.73
+2009-09,1044.55
+2009-10,1067.66
+2009-11,1088.07
+2009-12,1110.38
+2010-01,1123.58
+2010-02,1089.16
+2010-03,1152.05
+2010-04,1197.32
+2010-05,1125.06
+2010-06,1083.36
+2010-07,1079.8
+2010-08,1087.28
+2010-09,1122.08
+2010-10,1171.58
+2010-11,1198.89
+2010-12,1241.53
+2011-01,1282.62
+2011-02,1321.12
+2011-03,1304.49
+2011-04,1331.51
+2011-05,1338.31
+2011-06,1287.29
+2011-07,1325.19
+2011-08,1185.31
+2011-09,1173.88
+2011-10,1207.22
+2011-11,1226.42
+2011-12,1243.32
+2012-01,1300.58
+2012-02,1352.49
+2012-03,1389.24
+2012-04,1386.43
+2012-05,1341.27
+2012-06,1323.48
+2012-07,1359.78
+2012-08,1403.45
+2012-09,1443.42
+2012-10,1437.82
+2012-11,1394.51
+2012-12,1422.29
+</script>
 
 <script>
 'use strict';
@@ -71,18 +278,23 @@ const CONFIG = {
   gas: { v0: 115, radius: 5, temperature: 1 },
 
   exchange: {
-    initial: 100,        // 1인당 초기 자산 (= 평균 자산, 모형의 '온도')
-    rateSlow: 1.5,       // 초당 거래 수: 지도에서 한 건씩 보여줄 때
-    rateMid: 30,
-    rateFast: 400,
-    rateMixed: 1500,     // 04 장면 (정상 상태 도달이 느리다)
-    rateYard: [500, 6000],
-    saving: [0.5, 0.8],  // 03 장면 저축률 λ (두 단계)
-    yardFraction: 0.25,  // 05 장면 판돈 = 가난한 쪽 자산의 이 비율
+    initial: 100,        // 1인당 초기 자산 (= 평균 자산)
+    saving: 0.5,         // 03 장면: 거래할 때 남겨 두는 비율 λ
+    rates: [1.5, 30, 300],   // 03 장면 단계별 초당 거래 수
+    yardFraction: 0.25,  // 05 장면: 판돈 = 가난한 쪽 자산의 이 비율
+    rateYard: [400, 20000],
+    yardSpan: 400000,    // 05 장면 그래프 가로축 길이(거래 횟수)
     maxRoutes: 70
   },
 
-  data: { window: 400, column: '' },   // CSV 사용 시 표시할 최근 표본 수 / 열 이름 지정(선택)
+  quantum: {
+    temperature: 1.8,   // 04 장면 시작 온도 (T / Tc 단위)
+    tCold: 0.3,         // 식힌 뒤 온도
+    energyLevels: 20,   // 에너지 준위 수 (3차원 조화 트랩, ε_k = k·ħω, 축퇴도 g_k=(k+1)(k+2)/2)
+    particleCount: 500
+  },
+
+  data: { window: 400, column: '', label: 'S&P 500 월별 지수 1996–2012 (Shiller)' },   // 내장 CSV 설명 / 표시할 최근 표본 수 / 열 이름(선택)
 
   performance: { targetFPS: 60, maxDPR: 2, maxBackingWidth: 3840, adaptive: true }
 };
@@ -108,7 +320,7 @@ const SERIF = '"STIX Two Text","Times New Roman","Nimbus Roman",Times,serif';
 
 /* ---------- DOM ---------- */
 const stage = document.getElementById('stage'), cv = document.getElementById('cv'), ctx = cv.getContext('2d');
-const mBL = document.getElementById('mBL'), mBR = document.getElementById('mBR'), notesEl = document.getElementById('notes');
+const mBL = document.getElementById('mBL'), notesEl = document.getElementById('notes');
 stage.style.setProperty('--ease', 'cubic-bezier(' + CONFIG.animation.easing.join(',') + ')');
 stage.style.setProperty('--dur', CONFIG.animation.duration + 'ms');
 let K = 1, quality = 1;
@@ -129,26 +341,28 @@ const N = CONFIG.particles.count, TL = CONFIG.particles.trailLength;
 const F = () => new Float32Array(N);
 const px=F(),py=F(),vx=F(),vy=F(),ax=F(),ay=F();           // 위치·속도·가속도
 const col=F(),colT=F(),siz=F(),sizT=F(),alp=F(),alpT=F();   // 색상(0..1 램프)·크기·불투명도
-const kf=F(),sd=F(),sd2=F();                                // 개체별 난수
+const kf=F(),sd=F(),sd2=F(),g1=F(),g2=F();                  // 개체별 난수
 const trail=new Float32Array(N*TL*2); let th=0;             // 궤적 기록(링 버퍼)
 const st=new Uint8Array(N);
-const skyX=F(),skyY=F(),mapX=F(),mapY=F(),gx=F(),gy=F(),lamI=F();
+const skyX=F(),skyY=F(),mapU=F(),mapV=F(),gx=F(),gy=F();
+const NG = N>>1;                                            // 03 장면에서 기체로 남는 입자 수 (나머지는 사람)
 const HORIZON = 640;
 
 (function initParticles(){
   for(let i=0;i<N;i++){
-    kf[i]=0.8+0.45*srnd(); sd[i]=srnd(); sd2[i]=srnd(); lamI[i]=srnd()*0.99;
+    kf[i]=0.8+0.45*srnd(); sd[i]=srnd(); sd2[i]=srnd(); g1[i]=gauss(srnd); g2[i]=gauss(srnd);
     skyX[i]=40+srnd()*(W-80); skyY[i]=50+Math.pow(srnd(),1.25)*540;
   }
-  // 지도 노드: best-candidate 표본 추출로 고르게 배치
+  // 지도 노드: 0..1 정규 좌표에 best-candidate 표본 추출로 고르게 배치 (앞 절반·뒤 절반 각각 고르게)
   for(let i=0;i<N;i++){
-    let bx=0,by=0,bd=-1;
-    for(let c=0;c<10;c++){
-      const x=140+srnd()*1090,y=170+srnd()*670; let d=1e9;
-      for(let j=0;j<i;j++){const dx=mapX[j]-x,dy=mapY[j]-y,q=dx*dx+dy*dy; if(q<d)d=q;}
+    let bx=0,by=0,bd=-1; const j0=i<NG?0:NG;
+    for(let c=0;c<12;c++){
+      const x=srnd(),y=srnd(); let d=1e9;
+      for(let j=j0;j<i;j++){const dx=(mapU[j]-x)*1.6,dy=mapV[j]-y,q=dx*dx+dy*dy; if(q<d)d=q;}
+      if(i>=NG) for(let j=0;j<NG;j++){const dx=(mapU[j]-x)*1.6,dy=mapV[j]-y,q=(dx*dx+dy*dy)*4; if(q<d)d=q;}
       if(d>bd){bd=d;bx=x;by=y;}
     }
-    mapX[i]=bx; mapY[i]=by;
+    mapU[i]=bx; mapV[i]=by;
   }
   for(let i=0;i<N;i++){
     px[i]=skyX[i]; py[i]=skyY[i]; col[i]=colT[i]=0.6; siz[i]=sizT[i]=1.6; alp[i]=alpT[i]=0.4;
@@ -166,9 +380,12 @@ function spring(i, X, Y, dt, w){
 }
 
 /* ---------- 장면 매개변수 (연속적으로 보간) ---------- */
-const DEF = { warm:0, light:0, trail:8, star:1, tipA:0, tipB:0, lineA:1, gasHist:0, exAxis:0, lorenz:0 };
+const DEF = { warm:0, light:0, trail:8, star:1, tipA:0, tipB:0, lineA:1, gasHist:0, mHist:0, trap:0, plotFr:0, share:0,
+  bx:200, by:200, bw:860, bh:700,  gX0:1190, gX1:1790, gBase:880, gScale:1700,     // 기체 상자 · 속력 분포 위치
+  mx0:120, my0:170, mw:960, mh:670 };                                              // 사람 지도 영역
+const SPLIT = { bx:140, by:150, bw:720, bh:400, gX0:140, gX1:860, gBase:900, gScale:2000, mx0:1060, my0:150, mw:720, mh:400 };
 const P = Object.assign({}, DEF), PT = Object.assign({}, DEF);
-const V = { gasT:CONFIG.gas.temperature, exRate:CONFIG.exchange.rateSlow, rule:'random', lam:0 };
+const V = { gasT:CONFIG.gas.temperature, exRate:1.5, rule:'saving', lam:CONFIG.exchange.saving, qT:CONFIG.quantum.temperature };
 let mode = 'sky', T = 0, lightK = 0;
 
 /* =====================================================================
@@ -225,49 +442,57 @@ function applyCSV(text, name){
   const v=parseCSV(text); if(!v) return false;
   const w=v.slice(-Math.max(20,CONFIG.data.window));
   for(let i=0;i<LM;i++){ const p=i/(LM-1)*(w.length-1), a=Math.floor(p), b=Math.min(w.length-1,a+1); serB[i]=lerp(w[a],w[b],p-a); }
-  csvMode=true; csvName=name||'embedded CSV'; csvCount=w.length; normOf(serB,nrmB,true); updateMeta(true); return true;
+  const walk=[0]; for(let i=1;i<w.length;i++) walk.push(walk[i-1]+gauss(srnd));     // 왼쪽 브라운 운동도 같은 걸음 수로 다시 만든다
+  for(let i=0;i<LM;i++){ const p=i/(LM-1)*(walk.length-1), a=Math.floor(p), b=Math.min(walk.length-1,a+1); serA[i]=lerp(walk[a],walk[b],p-a); }
+  csvMode=true; csvName=name||'CSV'; csvCount=w.length; normOf(serA,nrmA,true); normOf(serB,nrmB,true); if(cur>=0) updateMeta(true); return true;
 }
 
 
 /* =====================================================================
    선 — 수평선 → 궤적 → 상자 → 축 → 분포 곡선 → 평등선 → 밑줄 로 이어지는 하나의 선
    ===================================================================== */
-const BOX = { x:200, y:200, w:860, h:700 };
-const EXB = { x0:150, pitch:44, nb:26, bw:CONFIG.exchange.initial/5, base:900, dot:11, maxH:600 };
-const GH = { x0:1190, x1:1790, base:880, nb:25, xmax:5, scale:1900 };
-const LZ = { x0:1340, y0:330, s:430 };
+const GH = { nb:32 };
+const MH = { x0:1060, x1:1780, base:900, nb:32, bw:CONFIG.exchange.initial/10, px:10 };   // 자산 분포 막대 (px: 한 사람당 높이)
 const SER = { aX0:160, aX1:880, bX0:1040, bX1:1760, cy:520, amp:170, fy:790 };
+const QL = CONFIG.quantum.energyLevels, QN = Math.min(N, CONFIG.quantum.particleCount);
+const TRAP = { cx:580, yb:900, dy:Math.min(36, 684/(QL-1)), wmax:400 };
+const PLOT = { x0:1200, x1:1780, y0:300, y1:820 };
+const levY = k => TRAP.yb - k*TRAP.dy;
+const levW = e => TRAP.wmax*Math.sqrt(Math.max(0,(e+0.6)/(QL-0.4)));
+const SH = { n:400 }, shareHist = new Float32Array(SH.n); let shareN = 0;
 
 function seriesShape(o, s, nm, x0, x1){
   for(let i=0;i<LM;i++){ o[2*i]=x0+Math.max(0,(i-serFrac))/(LM-1)*(x1-x0); o[2*i+1]=SER.cy-(s[i]-nm.m)/nm.r*SER.amp; }
 }
 function lgamma(x){ const c=[76.18009172947146,-86.50532032941677,24.01409824083091,-1.231739572450155,0.1208650973866179e-2,-0.5395239384953e-5];
   let y=x, t=x+5.5; t-=(x+0.5)*Math.log(t); let s=1.000000000190015; for(let j=0;j<6;j++) s+=c[j]/++y; return -t+Math.log(2.5066282746310005*s/x); }
-let lamCur = 0;                                    // 이론 곡선에 쓰는 저축률 (부드럽게 따라간다)
-// 저축률 λ 인 교환 모형의 정상 분포 근사: 감마 분포, 모양 모수 n = 1 + 3λ/(1-λ)  (λ=0 이면 지수 분포)
-function theoryDensity(m){ const Tm=CONFIG.exchange.initial, n=1+3*lamCur/(1-lamCur);
+// 저축률 λ 인 교환 모형의 정상 분포 근사: 감마 분포, 모양 모수 n = 1 + 3λ/(1-λ)  (Patriarca 외 2004)
+function theoryDensity(m){ const Tm=CONFIG.exchange.initial, n=1+3*V.lam/(1-V.lam);
   return m<=0 ? (n>1.0001?0:1/Tm) : Math.exp(n*Math.log(n/Tm)+(n-1)*Math.log(m)-n*m/Tm-lgamma(n)); }
 const SHAPES = {
   horizon(o){ for(let i=0;i<LM;i++){o[2*i]=-10+i/(LM-1)*(W+20);o[2*i+1]=HORIZON;} },
   serA(o){ seriesShape(o,serA,nrmA,SER.aX0,SER.aX1); },
   serB(o){ seriesShape(o,serB,nrmB,SER.bX0,SER.bX1); },
-  box(o){ const per=2*(BOX.w+BOX.h);
+  box(o){ const bx=P.bx,by=P.by,bw=P.bw,bh=P.bh, per=2*(bw+bh);
     for(let i=0;i<LM;i++){ let d=i/(LM-1)*per,x,y;
-      if(d<BOX.w){x=BOX.x+d;y=BOX.y;} else if((d-=BOX.w)<BOX.h){x=BOX.x+BOX.w;y=BOX.y+d;}
-      else if((d-=BOX.h)<BOX.w){x=BOX.x+BOX.w-d;y=BOX.y+BOX.h;} else {d-=BOX.w;x=BOX.x;y=BOX.y+BOX.h-d;}
+      if(d<bw){x=bx+d;y=by;} else if((d-=bw)<bh){x=bx+bw;y=by+d;}
+      else if((d-=bh)<bw){x=bx+bw-d;y=by+bh;} else {d-=bw;x=bx;y=by+bh-d;}
       o[2*i]=x;o[2*i+1]=y; } },
-  gasExp(o){ const dx=GH.xmax/GH.nb;                // 2차원 이상기체의 에너지 분포: P(E) ∝ e^{-E/k_BT}
-    for(let i=0;i<LM;i++){ const x=i/(LM-1)*GH.xmax; o[2*i]=GH.x0+i/(LM-1)*(GH.x1-GH.x0); o[2*i+1]=GH.base-Math.exp(-x)*dx*GH.scale; } },
-  base02(o){ const x0=EXB.x0-24,x1=EXB.x0+EXB.nb*EXB.pitch+6; for(let i=0;i<LM;i++){o[2*i]=x0+i/(LM-1)*(x1-x0);o[2*i+1]=EXB.base+9;} },
-  theory(o){ const mmax=EXB.nb*EXB.bw;
-    for(let i=0;i<LM;i++){ const m=i/(LM-1)*mmax; o[2*i]=EXB.x0+m/EXB.bw*EXB.pitch-5;
-      o[2*i+1]=EXB.base-Math.min(EXB.maxH+40,N*EXB.bw*theoryDensity(m)/3*EXB.dot); } },
-  lorenz(o){ for(let i=0;i<LM;i++){ const p=i/(LM-1)*N, a=Math.floor(p), b=Math.min(N,a+1); o[2*i]=LZ.x0+i/(LM-1)*LZ.s; o[2*i+1]=LZ.y0+LZ.s-lerp(lz[a],lz[b],p-a)*LZ.s; } },
-  eqLine(o){ for(let i=0;i<LM;i++){ o[2*i]=LZ.x0+i/(LM-1)*LZ.s; o[2*i+1]=LZ.y0+LZ.s-i/(LM-1)*LZ.s; } },
+  maxwell(o){ const v0=CONFIG.gas.v0*CONFIG.particles.speed, vmax=6*v0, dv=vmax/GH.nb, s2=Math.max(0.02,gasTm)*v0*v0;   // 2차원 맥스웰 속력 분포
+    for(let i=0;i<LM;i++){ const v=i/(LM-1)*vmax; o[2*i]=P.gX0+i/(LM-1)*(P.gX1-P.gX0);
+      o[2*i+1]=P.gBase-(v/s2)*Math.exp(-v*v/(2*s2))*dv*P.gScale; } },
+  theory(o){ const mmax=MH.nb*MH.bw, np=N-NG;
+    for(let i=0;i<LM;i++){ const m=i/(LM-1)*mmax; o[2*i]=MH.x0+i/(LM-1)*(MH.x1-MH.x0); o[2*i+1]=MH.base-np*MH.bw*theoryDensity(m)*MH.px; } },
+  parabola(o){ for(let i=0;i<LM;i++){ const s=-1+2*i/(LM-1), e=s*s*(QL-0.4)-0.6; o[2*i]=TRAP.cx+s*TRAP.wmax; o[2*i+1]=TRAP.yb-e*TRAP.dy; } },
+  frac(o){ for(let i=0;i<LM;i++){ const p=i/(LM-1)*200,a=Math.floor(p),b=Math.min(200,a+1); o[2*i]=PLOT.x0+i/(LM-1)*(PLOT.x1-PLOT.x0);
+      o[2*i+1]=PLOT.y1-lerp(Q.frac[a],Q.frac[b],p-a)*(PLOT.y1-PLOT.y0); } },
+  share(o){ const last=Math.max(0,shareN-1);       // 상위 1%의 몫: 거래 횟수에 따라 왼쪽에서 오른쪽으로 자란다
+    for(let i=0;i<LM;i++){ const p=Math.min(last,i/(LM-1)*(SH.n-1)), a=Math.floor(p), b=Math.min(last,a+1);
+      o[2*i]=PLOT.x0+p/(SH.n-1)*(PLOT.x1-PLOT.x0); o[2*i+1]=PLOT.y1-lerp(shareHist[a],shareHist[b],p-a)*(PLOT.y1-PLOT.y0); } },
   dash(o){ for(let i=0;i<LM;i++){o[2*i]=900+i/(LM-1)*120;o[2*i+1]=560;} },
   mergeLine(o){ for(let i=0;i<LM;i++){o[2*i]=160+i/(LM-1)*1600;o[2*i+1]=560;} },
   underline(o){ for(let i=0;i<LM;i++){o[2*i]=204+i/(LM-1)*1730;o[2*i+1]=700;} },
-  refLine(o){ for(let i=0;i<LM;i++){o[2*i]=204+i/(LM-1)*1730;o[2*i+1]=250;} }
+  refLine(o){ for(let i=0;i<LM;i++){o[2*i]=204+i/(LM-1)*1730;o[2*i+1]=236;} }
 };
 class Line{
   constructor(shape){ this.cur=new Float32Array(LM*2); this.from=new Float32Array(LM*2); this.tgt=new Float32Array(LM*2);
@@ -290,21 +515,21 @@ class Line{
 }
 
 /* =====================================================================
-   모형 ①  기체 상자 — 충돌로 에너지를 주고받는 입자들 (총에너지 일정)
+   모형 ①  기체 상자 — 충돌로 에너지를 주고받는 분자들
    ===================================================================== */
-let gasTm = 1; const gasHist = new Float32Array(GH.nb);
-const GC = CONFIG.gas.radius*2.2, gcols = Math.ceil(BOX.w/GC)+1, grows = Math.ceil(BOX.h/GC)+1;
+let gasTm = 1, gasCount = N; const gasHist = new Float32Array(GH.nb);
+const GC = CONFIG.gas.radius*2.2, gcols = Math.ceil(DEF.bw/GC)+1, grows = Math.ceil(DEF.bh/GC)+1;
 const ghead = new Int32Array(gcols*grows), gnext = new Int32Array(N);
-function gasEnter(){ st.fill(0); for(let i=0;i<N;i++){ gx[i]=BOX.x+20+Math.random()*(BOX.w-40); gy[i]=BOX.y+20+Math.random()*(BOX.h-40); } }
+function gasEnter(from){ for(let i=from;i<N;i++){ st[i]=0; gx[i]=PT.bx+20+Math.random()*(PT.bw-40); gy[i]=PT.by+20+Math.random()*(PT.bh-40); } }
 function collide(i,j){
   const dx=px[j]-px[i],dy=py[j]-py[i],d2=dx*dx+dy*dy,R2=4*CONFIG.gas.radius*CONFIG.gas.radius;
   if(d2>=R2||d2<1e-6) return; const d=Math.sqrt(d2),nx=dx/d,ny=dy/d,rel=(vx[j]-vx[i])*nx+(vy[j]-vy[i])*ny;
-  if(rel<0){ vx[i]+=rel*nx; vy[i]+=rel*ny; vx[j]-=rel*nx; vy[j]-=rel*ny; }     // 탄성 충돌: 두 입자의 에너지 합은 그대로
+  if(rel<0){ vx[i]+=rel*nx; vy[i]+=rel*ny; vx[j]-=rel*nx; vy[j]-=rel*ny; }     // 탄성 충돌: 두 분자의 에너지 합은 그대로
 }
-function mGas(dt){
+function gasStep(dt, n){
   const v0=CONFIG.gas.v0*CONFIG.particles.speed, R=CONFIG.gas.radius; let ke=0,nf=0;
-  const x0=BOX.x+R,x1=BOX.x+BOX.w-R,y0=BOX.y+R,y1=BOX.y+BOX.h-R;
-  for(let i=0;i<N;i++){
+  const x0=P.bx+R,x1=P.bx+P.bw-R,y0=P.by+R,y1=P.by+P.bh-R;
+  for(let i=0;i<n;i++){
     if(!st[i]){ spring(i,gx[i],gy[i],dt,1.3);
       const dx=gx[i]-px[i],dy=gy[i]-py[i];
       if(dx*dx+dy*dy<1600){ st[i]=1; const s=v0*Math.sqrt(V.gasT); vx[i]=gauss()*s; vy[i]=gauss()*s; } }
@@ -314,7 +539,7 @@ function mGas(dt){
       ke+=0.5*(vx[i]*vx[i]+vy[i]*vy[i]); nf++; }
   }
   ghead.fill(-1);
-  for(let i=0;i<N;i++){ if(!st[i]) continue; const c=clamp(((py[i]-BOX.y)/GC)|0,0,grows-1)*gcols+clamp(((px[i]-BOX.x)/GC)|0,0,gcols-1); gnext[i]=ghead[c]; ghead[c]=i; }
+  for(let i=0;i<n;i++){ if(!st[i]) continue; const c=clamp(((py[i]-P.by)/GC)|0,0,grows-1)*gcols+clamp(((px[i]-P.bx)/GC)|0,0,gcols-1); gnext[i]=ghead[c]; ghead[c]=i; }
   for(let cy=0;cy<grows;cy++) for(let cx=0;cx<gcols;cx++){
     for(let i=ghead[cy*gcols+cx];i>=0;i=gnext[i]){
       for(let j=gnext[i];j>=0;j=gnext[j]) collide(i,j);
@@ -323,60 +548,95 @@ function mGas(dt){
         if(cx>0) for(let j=ghead[(cy+1)*gcols+cx-1];j>=0;j=gnext[j]) collide(i,j);
         if(cx+1<gcols) for(let j=ghead[(cy+1)*gcols+cx+1];j>=0;j=gnext[j]) collide(i,j); }
     } }
-  let meanE=v0*v0*gasTm;
-  if(nf>0){ meanE=ke/nf; const Tm=meanE/(v0*v0); gasTm+=(Tm-gasTm)*0.2;
+  if(nf>0){ const Tm=ke/nf/(v0*v0); gasTm+=(Tm-gasTm)*0.2;
     const lam=Math.sqrt(clamp(1+dt/0.45*(V.gasT/Math.max(Tm,1e-4)-1),0.7,1.5));
-    for(let i=0;i<N;i++) if(st[i]){vx[i]*=lam;vy[i]*=lam;} }
-  const cnt=new Float32Array(GH.nb);
-  for(let i=0;i<N;i++){ const e=0.5*(vx[i]*vx[i]+vy[i]*vy[i])/meanE;      // 평균 에너지를 1로 둔 단위
-    if(st[i]){const b=(e/GH.xmax*GH.nb)|0; if(b<GH.nb)cnt[b]++;}
-    colT[i]=st[i]?clamp(0.18+0.42*Math.sqrt(e),0,1):0.6; sizT[i]=3.4; alpT[i]=0.95; }
-  for(let b=0;b<GH.nb;b++) gasHist[b]+=(cnt[b]/Math.max(1,nf)-gasHist[b])*0.05;
+    for(let i=0;i<n;i++) if(st[i]){vx[i]*=lam;vy[i]*=lam;} }
+  const cnt=new Float32Array(GH.nb), vmax=6*v0;
+  for(let i=0;i<n;i++){ const s=Math.hypot(vx[i],vy[i]); if(st[i]){const b=(s/vmax*GH.nb)|0; if(b<GH.nb)cnt[b]++;}
+    colT[i]=st[i]?clamp(Math.pow(s/(3.3*v0),0.85),0,1):0.6; sizT[i]=3.4; alpT[i]=0.95; }
+  for(let b=0;b<GH.nb;b++) gasHist[b]+=(cnt[b]/Math.max(1,nf)-gasHist[b])*0.06;
+}
+function mGas(dt){ gasStep(dt, N); }
+
+/* =====================================================================
+   모형 ②  돈 교환 (총자산 일정, 음수 불가). 규칙:
+     saving  각자 λ 만큼은 남겨 두고 나머지를 합쳐 무작위 비율로 다시 나눈다   (Chakraborti & Chakrabarti 2000)
+     yard    동전 던지기 내기, 판돈은 가난한 쪽 자산의 일정 비율                 (Chakraborti 2002; Boghosian 2014)
+   ===================================================================== */
+const money = new Float64Array(N), monHist = new Float32Array(MH.nb), sorted = new Float64Array(N);
+let exCount = 0, exAcc = 0, topShare = 0.01; const routes = [];
+function exReset(){ money.fill(CONFIG.exchange.initial); exCount=0; exAcc=0; routes.length=0; shareN=0; shareHist.fill(0); }
+exReset();
+function exStep(dt, p0){                      // p0..N-1 번 입자만 거래에 참여
+  const np=N-p0;
+  exAcc += V.exRate*dt*CONFIG.particles.speed; let n=Math.min(exAcc|0,600), budget=V.exRate>800?(Math.random()<0.45?1:0):2; exAcc=Math.min(exAcc-n,2);
+  const yard=V.rule==='yard', f=CONFIG.exchange.yardFraction, lam=V.lam;
+  for(;n>0;n--){
+    const i=p0+((Math.random()*np)|0); let j=p0+((Math.random()*(np-1))|0); if(j>=i) j++;
+    if(yard){ const d=f*Math.min(money[i],money[j]); if(Math.random()<0.5){money[i]+=d;money[j]-=d;} else {money[i]-=d;money[j]+=d;} }
+    else { const tot=money[i]+money[j], pool=(1-lam)*tot, e=Math.random(); money[i]=lam*money[i]+e*pool; money[j]=tot-money[i]; }
+    exCount++;
+    if(budget-->0 && routes.length<CONFIG.exchange.maxRoutes) routes.push({i,j,t:0,d:clamp(8/V.exRate,0.55,2.6)});
+    if(yard){ const k=Math.floor(exCount/CONFIG.exchange.yardSpan*(SH.n-1)); if(k>=shareN && k<SH.n){ computeShare(); while(shareN<=k) shareHist[shareN++]=topShare; } }
+  }
+  for(let r=routes.length-1;r>=0;r--){ routes[r].t+=dt; if(routes[r].t>routes[r].d) routes.splice(r,1); }
+}
+function computeShare(){ sorted.set(money); sorted.sort(); let tot=0,top=0; const k=Math.max(1,Math.round(N/100));
+  for(let i=0;i<N;i++) tot+=sorted[i]; for(let i=N-k;i<N;i++) top+=sorted[i]; topShare=top/tot; }
+function people(dt, p0){
+  exStep(dt, p0); const mean=CONFIG.exchange.initial, cnt=new Float32Array(MH.nb);
+  for(let i=p0;i<N;i++){ spring(i,P.mx0+mapU[i]*P.mw+Math.sin(T*0.3+sd[i]*50)*3,P.my0+mapV[i]*P.mh+Math.cos(T*0.27+sd2[i]*50)*3,dt,1);
+    const w=money[i]/mean; sizT[i]=clamp(1.2+2.6*Math.sqrt(w),1.2,64); colT[i]=clamp(0.3+0.28*w,0,1); alpT[i]=clamp(0.3+0.7*Math.sqrt(w),0.3,0.95);
+    const b=(money[i]/MH.bw)|0; if(b<MH.nb) cnt[b]++; }
+  for(let b=0;b<MH.nb;b++) monHist[b]+=(cnt[b]-monHist[b])*0.08;
+}
+function mSplit(dt){ gasStep(dt, NG); people(dt, NG); }     // 왼쪽 절반은 기체, 오른쪽 절반은 사람
+function mPeople(dt){ people(dt, 0); if(shareN===0){ computeShare(); } }
+
+/* =====================================================================
+   모형 ⑥ ⑦  보스-아인슈타인 통계 (3차원 조화 트랩, 준위 QL개로 절단)
+   평균 점유수 n̄(ε) = 1 / (e^{(ε-μ)/k_BT} - 1),  μ 는 Σ g_k n̄(ε_k) = N 으로 결정
+   ===================================================================== */
+const Q = { T:1, mu:-1, Tc:1, Tcur:CONFIG.quantum.temperature, g:new Float64Array(QL), nbar:new Float64Array(QL),
+  occ:new Float64Array(QL), tgt:new Int32Array(QL), cnt:new Int32Array(QL), frac:new Float32Array(201), n0:0 };
+for(let k=0;k<QL;k++) Q.g[k]=(k+1)*(k+2)/2;
+const lev = new Int16Array(N), lrank = new Int32Array(N);
+function beTotal(mu,T){ let s=0; for(let k=0;k<QL;k++) s+=Q.g[k]/Math.expm1((k-mu)/T); return s; }
+function beSolve(T){ let lo=-80*T-80, hi=-1e-13;
+  for(let it=0;it<90;it++){ const mid=(lo+hi)/2; if(beTotal(mid,T)>QN) hi=mid; else lo=mid; } return (lo+hi)/2; }
+(function(){ // 모형의 임계온도: 들뜬 상태가 수용할 수 있는 최대 입자 수가 N 이 되는 온도
+  const cap=T=>{let s=0;for(let k=1;k<QL;k++)s+=Q.g[k]/Math.expm1(k/T);return s;};
+  let lo=0.05,hi=500; for(let it=0;it<80;it++){const m=(lo+hi)/2; if(cap(m)>QN)hi=m; else lo=m;} Q.Tc=(lo+hi)/2;
+  Q.frac[0]=1; for(let j=1;j<=200;j++){ const T=j/100*Q.Tc, mu=beSolve(T); Q.frac[j]=1/Math.expm1(-mu/T)/QN; }
+})();
+function qUpdate(dt){
+  Q.Tcur+=(V.qT-Q.Tcur)*(1-Math.exp(-dt*0.8)); Q.T=Math.max(0.02,Q.Tcur)*Q.Tc; Q.mu=beSolve(Q.T);
+  let sum=0; for(let k=0;k<QL;k++){ Q.nbar[k]=1/Math.expm1((k-Q.mu)/Q.T); Q.occ[k]=Q.g[k]*Q.nbar[k]; Q.tgt[k]=Math.floor(Q.occ[k]); sum+=Q.tgt[k]; }
+  Q.n0=Q.occ[0];
+  for(let left=QN-sum;left>0;left--){ let bk=0,bf=-1; for(let k=0;k<QL;k++){const f=Q.occ[k]-Q.tgt[k]; if(f>bf){bf=f;bk=k;}} Q.tgt[bk]++; Q.occ[bk]-=1; }
+  for(let k=0;k<QL;k++) Q.occ[k]=Q.g[k]*Q.nbar[k];
+}
+function levelsEnter(){ qUpdate(0); let i=0; for(let k=0;k<QL;k++) for(let c=0;c<Q.tgt[k]&&i<QN;c++) lev[i++]=k;
+  for(;i<QN;i++) lev[i]=0;
+  for(let a=QN-1;a>0;a--){ const b=(Math.random()*(a+1))|0, t=lev[a]; lev[a]=lev[b]; lev[b]=t; } }
+function mLevels(dt){
+  qUpdate(dt); const c=Q.cnt; c.fill(0); for(let i=0;i<QN;i++) c[lev[i]]++;
+  let moves=Math.max(4,Math.round(14*dt*60)), start=(Math.random()*QN)|0;
+  for(let q=0;q<QN&&moves>0;q++){ const i=(start+q)%QN, k=lev[i]; if(c[k]<=Q.tgt[k]) continue;
+    let best=-1; for(let d=1;d<QL&&best<0;d++){ if(k-d>=0&&c[k-d]<Q.tgt[k-d]) best=k-d; else if(k+d<QL&&c[k+d]<Q.tgt[k+d]) best=k+d; }
+    if(best<0) break; lev[i]=best; c[k]--; c[best]++; moves--; }
+  if(Math.random()<clamp(Q.Tcur,0.05,1)*dt*60*0.8){ const a=(Math.random()*QN)|0,b=(Math.random()*QN)|0;
+    if(Math.abs(lev[a]-lev[b])<=2){const t=lev[a];lev[a]=lev[b];lev[b]=t;} }      // 열적 요동(점유수는 그대로)
+  c.fill(0); for(let i=0;i<QN;i++) lrank[i]=c[lev[i]]++;
+  const s0=5+1.9*Math.sqrt(c[0]);
+  for(let i=0;i<QN;i++){ const k=lev[i]; let X,Y;
+    if(k===0){ X=TRAP.cx+g1[i]*s0; Y=TRAP.yb-4+g2[i]*s0*0.5; }       // 하나의 양자 상태에 겹쳐 쌓이는 보손
+    else { const hw=levW(k)*0.9, pitch=Math.min(11,2*hw/c[k]); X=TRAP.cx+(lrank[i]-(c[k]-1)/2)*pitch; Y=levY(k)-5+Math.sin(T*2+sd[i]*30)*1.2; }
+    spring(i,X,Y,dt,1.7); colT[i]=k===0?1:0.45; sizT[i]=2.7; alpT[i]=0.95; }
+  for(let i=QN;i<N;i++){ spring(i,skyX[i],skyY[i],dt,0.7); alpT[i]=0.15; sizT[i]=1.5; colT[i]=0.5; }
 }
 
 /* =====================================================================
-   모형 ②–⑤  돈 교환 (총자산 일정, 음수 불가). 규칙만 바뀐다:
-     random  두 사람의 돈을 합쳐 무작위 비율로 다시 나눈다          (Drăgulescu & Yakovenko 2000)
-     saving  각자 λ 만큼은 남겨 두고 나머지만 거래한다               (Chakraborti & Chakrabarti 2000)
-     mixed   저축률 λ 가 사람마다 다르다                             (Chatterjee, Chakrabarti & Manna 2004)
-     yard    동전 던지기 내기, 판돈은 가난한 쪽 자산의 일정 비율     (Chakraborti 2002; Boghosian 2014)
-   ===================================================================== */
-const money = new Float64Array(N), lz = new Float32Array(N+1), sorted = new Float64Array(N);
-let exCount = 0, exAcc = 0, gini = 0, top10 = 0.1; const routes = [];
-const exCnt = new Int32Array(EXB.nb), exRank = new Int32Array(N);
-function exReset(){ money.fill(CONFIG.exchange.initial); exCount=0; exAcc=0; routes.length=0; }
-exReset();
-function exStep(dt){
-  exAcc += V.exRate*dt*CONFIG.particles.speed; let n=Math.min(exAcc|0,600), budget=V.exRate>800?(Math.random()<0.45?1:0):2; exAcc=Math.min(exAcc-n,2);
-  const rule=V.rule, f=CONFIG.exchange.yardFraction;
-  for(;n>0;n--){
-    const i=(Math.random()*N)|0; let j=(Math.random()*(N-1))|0; if(j>=i) j++;
-    if(rule==='yard'){ const d=f*Math.min(money[i],money[j]); if(Math.random()<0.5){money[i]+=d;money[j]-=d;} else {money[i]-=d;money[j]+=d;} }
-    else { const li=rule==='saving'?V.lam:rule==='mixed'?lamI[i]:0, lj=rule==='saving'?V.lam:rule==='mixed'?lamI[j]:0;
-      const pool=(1-li)*money[i]+(1-lj)*money[j], e=Math.random(), tot=money[i]+money[j];
-      money[i]=li*money[i]+e*pool; money[j]=tot-money[i]; }
-    exCount++;
-    if(budget-->0 && routes.length<CONFIG.exchange.maxRoutes) routes.push({i,j,t:0,d:clamp(8/V.exRate,0.55,2.6)});
-  }
-  for(let r=routes.length-1;r>=0;r--){ routes[r].t+=dt; if(routes[r].t>routes[r].d) routes.splice(r,1); }
-  // 로렌츠 곡선 · 지니계수 · 상위 10% 몫 (화면 속 자산을 그대로 계산)
-  sorted.set(money); sorted.sort(); let acc=0, area=0, tot=0; for(let i=0;i<N;i++) tot+=sorted[i];
-  lz[0]=0; for(let i=0;i<N;i++){ acc+=sorted[i]; lz[i+1]=acc/tot; area+=(lz[i]+lz[i+1])/2/N; }
-  gini=1-2*area; top10=1-lz[Math.round(N*0.9)];
-  lamCur+=((rule==='saving'?V.lam:0)-lamCur)*(1-Math.exp(-dt*2.5));
-}
-function mExMap(dt){
-  exStep(dt); const mean=CONFIG.exchange.initial;
-  for(let i=0;i<N;i++){ spring(i,mapX[i]+Math.sin(T*0.3+sd[i]*50)*3,mapY[i]+Math.cos(T*0.27+sd2[i]*50)*3,dt,1);
-    const w=money[i]/mean; sizT[i]=clamp(1.2+2.6*Math.sqrt(w),1.2,64); colT[i]=clamp(0.3+0.28*w,0,1); alpT[i]=clamp(0.3+0.7*Math.sqrt(w),0.3,0.95); }
-}
-function mExHist(dt){
-  exStep(dt); exCnt.fill(0);
-  for(let i=0;i<N;i++){ const b=Math.min(EXB.nb-1,(money[i]/EXB.bw)|0); st[i]=b; exRank[i]=exCnt[b]++; }
-  for(let i=0;i<N;i++){ const b=st[i], rows=Math.ceil(exCnt[b]/3), sp=Math.min(EXB.dot,EXB.maxH/Math.max(1,rows)), r=exRank[i];
-    spring(i,EXB.x0+b*EXB.pitch+(r%3)*EXB.dot,EXB.base-6-((r/3)|0)*sp,dt,1.5);
-    sizT[i]=4; colT[i]=clamp(0.3+b/EXB.nb*1.1,0,1); alpT[i]=0.95; }
-}
 
 /* =====================================================================
    그 밖의 입자 운동: 밤하늘 · 엔딩
@@ -402,9 +662,11 @@ function mMerge(dt){
   for(let i=0;i<N;i++){ spring(i,160+mrank[i]/(N-1)*1600,560,dt,0.62);
     const d=Math.abs(py[i]-560)+Math.abs(vy[i])*0.05; alpT[i]=clamp(d/50,0,0.9); sizT[i]=1.4+clamp(d/200,0,1); colT[i]=0.8; }
 }
-const MODES = { sky:mSky, gas:mGas, exMap:mExMap, exHist:mExHist, scatter:mScatter, merge:mMerge };
+const MODES = { sky:mSky, gas:mGas, split:mSplit, levels:mLevels, people:mPeople, scatter:mScatter, merge:mMerge };
 function modeEnter(m, prev){
-  if(m==='gas') gasEnter();
+  if(m==='gas') gasEnter(prev==='split'?NG:0);
+  else if(m==='split'){ if(prev!=='gas') gasEnter(0); }
+  else if(m==='levels'){ Q.Tcur=V.qT; levelsEnter(); }
   else if(m==='scatter'){ if(prev!=='merge') scatterEnter(); }
   else if(m==='merge') mergeEnter();
 }
@@ -447,27 +709,24 @@ hero.jump('horizon'); hero.b=hero.bT=1; line2.jump('serB');
 const REFS = [
   'L. Bachelier, <i>Théorie de la spéculation</i>, Ann. Sci. Éc. Norm. Supér. 17, 21 (1900)',
   'A. Einstein, Ann. Phys. 17, 549 (1905)',
+  'R. J. Shiller, <i>Irrational Exuberance</i>, Princeton University Press (2000) — S&P 500 월별 자료',
+  'J. C. Maxwell, <i>Illustrations of the dynamical theory of gases</i>, Philos. Mag. 19, 19 (1860)',
   'A. Drăgulescu, V. M. Yakovenko, <i>Statistical mechanics of money</i>, Eur. Phys. J. B 17, 723 (2000)',
   'A. Chakraborti, B. K. Chakrabarti, <i>Statistical mechanics of money: how saving propensity affects its distribution</i>, Eur. Phys. J. B 17, 167 (2000)',
   'M. Patriarca, A. Chakraborti, K. Kaski, <i>Statistical model with a standard Γ distribution</i>, Phys. Rev. E 70, 016104 (2004)',
-  'A. Chatterjee, B. K. Chakrabarti, S. S. Manna, <i>Pareto law in a kinetic model of market with random saving propensity</i>, Physica A 335, 155 (2004)',
-  'A. Drăgulescu, V. M. Yakovenko, <i>Exponential and power-law probability distributions of wealth and income in the United Kingdom and the United States</i>, Physica A 299, 213 (2001)',
+  'S. N. Bose, Z. Phys. 26, 178 (1924)',
+  'M. H. Anderson et al., <i>Observation of Bose-Einstein condensation in a dilute atomic vapor</i>, Science 269, 198 (1995)',
   'J.-P. Bouchaud, M. Mézard, <i>Wealth condensation in a simple model of economy</i>, Physica A 282, 536 (2000)',
+  'G. Bianconi, A.-L. Barabási, <i>Bose-Einstein condensation in complex networks</i>, Phys. Rev. Lett. 86, 5632 (2001)',
   'A. Chakraborti, <i>Distributions of money in model markets of economy</i>, Int. J. Mod. Phys. C 13, 1315 (2002)',
   'B. M. Boghosian, <i>Kinetics of wealth and the Pareto law</i>, Phys. Rev. E 89, 042804 (2014)',
   'V. M. Yakovenko, J. B. Rosser Jr., <i>Colloquium: Statistical mechanics of money, wealth, and income</i>, Rev. Mod. Phys. 81, 1703 (2009)'
 ];
 const TEXTS = {
-  title:{x:160,y:690,s:66,h:'통계물리학으로 바라보는 경제'},
-  energy:{x:1186,y:150,s:112,h:'에너지'},
-  money:{x:1336,y:120,s:112,h:'돈'},
-  saving:{x:1336,y:120,s:112,h:'저축'},
-  tail:{x:1336,y:120,s:112,h:'긴 꼬리'},
-  cond:{x:1336,y:120,s:112,h:'응축'},
-  winner:{x:1336,y:120,s:112,h:'승자독식'},
-  end:{x:200,y:455,s:80,h:'개별의 무작위성에서<br>집단의 규칙성으로.'},
-  refsTitle:{x:200,y:150,s:44,h:'참고문헌'},
-  refs:{x:200,y:286,s:23,c:'refs',h:REFS.join('<br>')}
+  title:{x:160,y:690,s:74,h:'통계물리학으로 바라보는 <b>경제</b>'},
+  end:{x:200,y:450,s:84,h:'한 사람의 거래는 <b>예측할 수 없다.</b><br>그러나 전체의 분포는 <b>일정한 모양</b>을 따른다.'},
+  refsTitle:{x:200,y:140,s:44,h:'<b>참고문헌</b>'},
+  refs:{x:200,y:276,s:22,c:'refs',h:REFS.join('<br>')}
 };
 for(const id in TEXTS){ const d=TEXTS[id], el=document.createElement('div'); el.className='t'+(d.c?' '+d.c:'');
   el.style.left=d.x+'px'; el.style.top=d.y+'px'; el.style.fontSize=d.s+'px'; el.innerHTML='<span>'+d.h+'</span>'; stage.appendChild(el); d.el=el; }
@@ -475,95 +734,91 @@ for(const id in TEXTS){ const d=TEXTS[id], el=document.createElement('div'); el.
 /* =====================================================================
    장면 · 단계 · 발표자 노트
    ===================================================================== */
-const EX = CONFIG.exchange;
+const EX = CONFIG.exchange, QC = CONFIG.quantum;
 const SCENES = [
 { title:'1. 도입 — 닮은 두 그래프', key:'물리와 경제의 시각적 유사성',
+  ref:['', 'Bachelier (1900) · Einstein (1905)', '@data', '@data'],
   steps:[
     {mode:'sky',line:'horizon',texts:['title'],P:{warm:1,trail:0}},
-    {line:'serA',texts:[],fa:'기체 분자',P:{warm:0.3,star:0.5,tipA:1,trail:6}},
-    {line2:'serB',fb:'주식 시장',P:{star:0.5,tipA:1,tipB:1,trail:6}} ],
-  script:['수평선 하나에서 시작하겠습니다. 이 선이 조금씩 흔들리기 시작합니다.',
-    '(→) 흔들림이 쌓이면 이런 궤적이 됩니다. 물속에 떠 있는 꽃가루나 기체 분자 하나가 사방에서 부딪히며 움직인 기록입니다.',
-    '(→) 옆의 그래프는 주식 시장의 가격입니다. 이름표를 가리면 어느 쪽이 분자이고 어느 쪽이 주가인지 구별하기 어렵습니다. 실제로 주가를 무작위 걸음으로 본 첫 수학 모형은 1900년 바슐리에의 박사 논문 「투기 이론」에서 나왔고, 아인슈타인이 분자 운동에 같은 수학을 쓴 것은 그보다 5년 뒤입니다. 물리와 경제는 꽤 오래전부터 같은 도구를 써 왔습니다. 오늘은 그중에서 돈이 사람들 사이에 어떻게 나뉘는가 하는 이야기를 하겠습니다.'],
-  caveats:['두 분야가 같다는 주장이 아니라, 같은 수학 모형을 적용할 수 있다는 뜻이다.',
-    '왼쪽은 1차원 브라운 운동 시뮬레이션이다. 오른쪽은 CSV를 넣지 않으면 시뮬레이션이며(화면 왼쪽 아래에 표시), 실제 지수가 아니다.',
-    '실제 주가 수익률에는 변동성 군집, 두꺼운 꼬리처럼 단순한 무작위 걸음으로 설명되지 않는 특성이 있다.',
-    '출처: Bachelier (1900), Einstein (1905).'] },
-{ title:'2. 기체 상자 — 에너지를 주고받는 입자들', key:'충돌 = 에너지 교환, 총량은 일정',
+    {line:'serA',texts:[],P:{warm:0.3,star:0.5,tipA:1,trail:6}},
+    {line2:'serB',P:{star:0.5,tipA:1,tipB:1,trail:6}},
+    {fa:'기체 분자',fb:'주식 시장'} ],
+  script:['수평선 하나에서 시작한다. 이 선이 조금씩 흔들린다.',
+    '(→) 흔들림이 쌓이면 이런 그래프가 된다. (→) 옆에 그래프가 하나 더 있다. 둘 중 하나는 물리 실험에서, 하나는 경제에서 나온 것이다.',
+    '(→) 왼쪽은 기체 분자 하나의 위치이고, 오른쪽은 주식 시장의 지수이다. 이름표가 없으면 구별하기 어렵다. 주가를 무작위 걸음으로 다룬 첫 수학 모형은 1900년 바슐리에의 박사 논문이고, 아인슈타인이 분자 운동에 같은 수학을 쓴 것은 5년 뒤인 1905년이다. 물리와 경제는 오래전부터 같은 도구를 써 왔다.'],
+  caveats:['오른쪽은 실제 자료이다: S&P 500 월별 지수 1996년 1월–2012년 12월 (Shiller의 공개 자료, 204개월). 다른 CSV를 창에 끌어다 놓으면 교체된다.',
+    '왼쪽은 실측 자료가 아니라 1차원 브라운 운동 시뮬레이션이다(같은 204걸음). 페랭의 1909년 관측 기록은 그림으로만 남아 있어 수치 자료를 구하지 못했다.',
+    '두 분야가 같다는 주장이 아니라 같은 수학 모형을 적용할 수 있다는 뜻이다. 실제 주가에는 변동성 군집, 두꺼운 꼬리처럼 단순한 무작위 걸음으로 설명되지 않는 특성이 있다.'] },
+{ title:'2. 기체 상자 — 속력 분포', key:'충돌 = 에너지 교환. 결과는 종 모양 분포',
+  ref:['Maxwell (1860)'],
   steps:[
-    {mode:'gas',line:'box'},
-    {texts:['energy'],P:{gasHist:1}},
-    {line2:'gasExp',P:{gasHist:1}} ],
-  script:['선이 상자가 되고 그 안에 기체 분자 500개가 들어옵니다. 분자들은 서로 부딪힐 때마다 에너지를 주고받습니다. 한쪽이 얻으면 다른 쪽은 그만큼 잃고, 전체 에너지는 변하지 않습니다. 밝은 점이 에너지가 큰 분자입니다.',
-    '(→) 지금 이 순간 분자들이 가진 에너지를 세어 보면 이런 막대그래프가 됩니다. 에너지가 작은 분자가 가장 많고, 큰 분자는 드뭅니다.',
-    '(→) 이 모양은 우연이 아니라 볼츠만 분포라는 정해진 곡선입니다. 누가 정해 준 것이 아니라 무작위로 주고받다 보면 저절로 이 모양이 됩니다. 이 곡선을 기억해 두시기 바랍니다.'],
-  caveats:['막대는 화면 속 분자의 실제 운동에너지를 센 것이고, 곡선은 이론식 e^(−E/k_BT)이다. 2차원 이상기체에서는 에너지 분포가 정확히 지수함수다.',
-    '볼츠만 분포는 종 모양이 아니다. 0에서 가장 높고 오른쪽으로 갈수록 급격히 줄어드는 곡선이다(종 모양에 가까운 것은 속력 분포다).',
+    {mode:'gas',line:'box',P:{}},
+    {P:{gasHist:1}},
+    {line2:'maxwell'} ],
+  script:['선이 상자가 되고 그 안에 기체 분자 500개가 들어온다. 분자들은 서로 부딪힐 때마다 에너지를 주고받는다. 한쪽이 얻으면 다른 쪽은 그만큼 잃는다. 전체 에너지는 변하지 않는다.',
+    '(→) 지금 이 순간 분자들의 속력을 세어 보면 이런 막대그래프가 된다. 아주 느린 분자도, 아주 빠른 분자도 적고 중간이 가장 많다.',
+    '(→) 이 모양은 맥스웰-볼츠만 분포라는 정해진 곡선이다. 분자 하나의 속력은 충돌할 때마다 바뀌지만 전체 분포는 이 곡선에서 벗어나지 않는다.'],
+  caveats:['막대는 화면 속 분자의 실제 속력을 센 것이고 곡선은 2차원 맥스웰 속력 분포의 이론식이다.',
+    '에너지로 세면 분포는 0에서 가장 높은 지수함수 모양이 된다(볼츠만 분포). 종 모양인 것은 속력 분포이다. 질문이 나오면 구분해서 답한다.',
     '↑↓ 키로 온도를 바꿀 수 있지만 발표 흐름에는 필요 없다.'] },
-{ title:'3. 돈 교환 — 같은 규칙, 같은 분포', key:'에너지 자리에 돈을 놓는다',
+{ title:'3. 돈 교환 — 분자 자리에 사람을, 에너지 자리에 돈을', key:'같은 규칙에서 같은 모양의 분포가 나온다',
+  ref:['Chakraborti & Chakrabarti (2000) · Patriarca, Chakraborti & Kaski (2004)'],
   steps:[
-    {mode:'exMap',line:'base02',texts:['money'],reset:true,v:{rule:'random',lam:0,exRate:EX.rateSlow}},
-    {mode:'exHist',v:{exRate:EX.rateMid},P:{exAxis:1}},
-    {v:{exRate:EX.rateFast},P:{exAxis:1}},
-    {line:'theory',line2:'lorenz',P:{exAxis:1,lorenz:1}} ],
-  script:['이제 분자를 사람으로, 에너지를 돈으로 바꿉니다. 500명이 똑같이 100원씩 가지고 시작합니다. 선 하나가 거래 한 번입니다. 무작위로 만난 두 사람이 가진 돈을 합쳐 무작위 비율로 다시 나눕니다. 분자의 충돌과 같은 규칙이고, 전체 돈의 양도 변하지 않습니다.',
-    '(→) 같은 사람들을 가진 돈의 크기대로 줄 세웠습니다. 지금은 모두 같은 칸에 있습니다. (→) 거래가 반복되면 분포가 퍼집니다.',
-    '(→) 결국 앞에서 본 기체의 에너지 분포와 같은 곡선에 도달합니다. 특별히 유리한 사람이 없는데도 가난한 사람이 많고 부자는 적은 분포가 나옵니다. 오른쪽은 경제학에서 쓰는 로렌츠 곡선이고, 이 분포의 지니계수는 0.5입니다. 2000년 드러굴레스쿠와 야코벤코의 논문 「돈의 통계역학」의 결과입니다.'],
+    {mode:'split',line:'box',line2:'maxwell',reset:true,v:{rule:'saving',lam:EX.saving,exRate:EX.rates[0]},P:Object.assign({gasHist:1},SPLIT)},
+    {v:{exRate:EX.rates[1]},P:Object.assign({gasHist:1,mHist:1},SPLIT)},
+    {line:'theory',v:{exRate:EX.rates[2]}} ],
+  script:['기체 상자를 왼쪽에 두고, 분자의 절반을 오른쪽으로 옮겨 사람으로 바꾼다. 250명이 똑같이 100원씩 가지고 시작한다. 선 하나가 거래 한 번이다. 무작위로 만난 두 사람이 가진 돈의 절반씩을 내놓고, 합친 돈을 무작위 비율로 다시 나눈다. 분자의 충돌과 같은 규칙이고, 전체 돈의 양은 변하지 않는다.',
+    '(→) 오른쪽 아래는 사람들이 가진 돈의 분포이다. 처음에는 모두 100원에 몰려 있다. 거래가 반복되면 분포가 퍼진다.',
+    '(→) 거래를 빠르게 돌리면 왼쪽 기체의 분포와 같은 모양에 도달한다. 가난한 사람도 부자도 적고 중간이 가장 많다. 누가 정한 것이 아니라 무작위 거래의 결과이다. 통계물리학에서는 이 대응을 에너지와 돈, 온도와 평균 자산의 관계로 본다.'],
   caveats:['총자산이 일정하고 빚이 없다는 것은 모형의 가정이다. 실제 경제에는 생산, 신용, 성장이 있다.',
-    '모든 사람에게 같은 무작위 교환 규칙을 적용했다. 정상 상태는 지수 분포(볼츠만-깁스 분포)이며, 이때 평균 자산이 온도 역할을 한다.',
-    '지수 분포의 지니계수는 정확히 0.5, 상위 10%의 몫은 약 33%다. 화면 수치는 500명의 자산을 직접 계산한 값이라 조금씩 흔들린다.',
-    '실제 자료에서도 미국·영국 소득의 하위 대다수는 지수 분포에 가깝다는 보고가 있다(Drăgulescu & Yakovenko 2001). 상위는 그렇지 않다 — 5번 장면.',
-    '출처: Drăgulescu & Yakovenko (2000); Yakovenko & Rosser (2009).'] },
-{ title:'4. 저축 — 봉우리가 생긴다', key:'규칙 하나를 바꾸면 분포가 달라진다',
+    '규칙: 각자 가진 돈의 50%는 남겨 두고(저축률 λ=0.5) 나머지를 합쳐 무작위로 나눈다. 곡선은 감마 분포이며 수치 결과에 잘 맞는 근사식이다(모양 모수 n = 1 + 3λ/(1−λ)). 이 분포는 유효 차원이 2n인 기체의 맥스웰-볼츠만 에너지 분포와 같은 식이다(Patriarca 외 2004).',
+    '두 그래프의 가로축은 다르다(속력, 돈). 같은 곡선이라는 뜻이 아니라 같은 계열의 분포라는 뜻이다.',
+    '저축 없이 전부를 내놓고 나누면(λ=0) 분포는 종 모양이 아니라 0에서 가장 높은 지수 분포가 된다(Drăgulescu & Yakovenko 2000).',
+    '실제 부의 분포가 이 모형을 그대로 따르는 것은 아니다. 실제 자료에서는 상위 소수가 멱법칙 꼬리를 보인다.'] },
+{ title:'4. 보스-아인슈타인 응축 — 한 상태로 몰리는 입자들', key:'온도를 낮추면 입자가 하나의 상태에 모인다',
+  ref:['Bose (1924) · Einstein (1925) · Anderson et al. (1995)'],
   steps:[
-    {mode:'exHist',line:'theory',line2:'lorenz',texts:['saving'],v:{rule:'saving',lam:EX.saving[0],exRate:EX.rateFast},P:{exAxis:1,lorenz:1}},
-    {v:{lam:EX.saving[1]},P:{exAxis:1,lorenz:1}} ],
-  script:['그런데 실제 사람은 가진 돈을 전부 거래에 내놓지 않습니다. 규칙을 하나만 바꿔 보겠습니다. 각자 가진 돈의 절반은 남겨 두고 나머지 절반만 거래합니다. 그러면 빈털터리가 줄어들고 가운데가 솟아오른 분포가 됩니다. 실제 소득 분포에서 보는 중산층의 봉우리와 비슷한 모양입니다.',
-    '(→) 저축률을 80%로 올리면 봉우리가 평균 근처로 더 좁게 모이고 지니계수는 더 내려갑니다. 사람들의 행동 규칙 하나가 사회 전체의 분포를 바꿉니다.'],
-  caveats:['저축률 λ: 거래할 때 자기 돈 중 남겨 두는 비율. 모든 사람이 같은 λ를 갖는다고 가정했다.',
-    '곡선은 감마 분포이며 수치 결과에 아주 잘 맞는 근사식이다(모양 모수 n = 1 + 3λ/(1−λ), Patriarca 외 2004). 엄밀한 해는 아니다.',
-    '↑↓ 키로 저축률을 바꿀 수 있다.',
-    '출처: Chakraborti & Chakrabarti (2000); Patriarca, Chakraborti & Kaski (2004).'] },
-{ title:'5. 긴 꼬리 — 사람마다 다르면', key:'소수의 큰 부자',
+    {mode:'levels',line:'parabola',line2:null,v:{qT:QC.temperature},P:{trap:1,trail:5}},
+    {line:'frac',P:{trap:1,trail:5,plotFr:1}},
+    {v:{qT:QC.tCold}} ],
+  script:['분포가 항상 고르게 퍼지는 것은 아니다. 이번에는 입자들을 에너지 계단에 올려놓는다. 가로선 하나가 에너지 준위이고 위로 갈수록 에너지가 높다. 온도가 높을 때 입자들은 여러 준위에 퍼져 있다. 오른쪽 숫자는 준위별 입자 수이다.',
+    '(→) 오른쪽 그래프는 가장 아래 준위, 즉 바닥 상태에 있는 입자의 비율을 온도에 따라 그린 것이다. 지금은 오른쪽 끝, 거의 0이다.',
+    '(→) 온도를 낮춘다. 임계 온도 아래로 내려가면 입자들이 바닥 상태 하나로 몰린다. 이것이 보스-아인슈타인 응축이다. 1924–25년에 예측되었고 1995년에 실험으로 확인되었다. 보손이라는 종류의 입자는 같은 상태에 여럿이 함께 있을 수 있기 때문에 생기는 현상이다.'],
+  caveats:['보손의 평균 점유수: n̄(ε) = 1 / (e^{(ε−μ)/k_BT} − 1). n̄ 평균 점유수, ε 에너지, μ 화학 퍼텐셜, k_B 볼츠만 상수, T 절대온도. 화면의 입자 수와 곡선은 이 식으로 계산한 값이다.',
+    '보손은 파울리 배타 원리의 제한을 받지 않는다(배타 원리는 전자 같은 페르미온에 적용된다).',
+    '단순히 모든 입자가 가장 낮은 에너지로 내려가는 현상이 아니다. 임계 온도에서도 열에너지는 준위 간격보다 훨씬 크고, 고전 입자라면 바닥 상태 점유는 미미하다. 들뜬 상태가 수용할 수 있는 입자 수에 한계가 있어서 넘치는 입자가 바닥 상태에 모이는 것이다.',
+    '모형: 3차원 조화 트랩, 준위 20개에서 절단, 입자 500개. 유한한 모형이라 전이가 완만하게 보인다. 균일한 3차원 기체의 이론식은 N₀/N = 1 − (T/T_c)^{3/2}.',
+    '↑↓ 키로 온도를 바꿀 수 있다.'] },
+{ title:'5. 자산 응축 — 소수에게 몰리는 돈', key:'같은 수식으로 기술되는 경제 현상',
+  ref:['Bouchaud & Mézard (2000) · Bianconi & Barabási (2001) · Boghosian (2014)'],
   steps:[
-    {mode:'exHist',line:'eqLine',line2:'lorenz',texts:['tail'],v:{rule:'mixed',exRate:EX.rateMixed},P:{exAxis:1,lorenz:1}},
-    {mode:'exMap',P:{lorenz:1}} ],
-  script:['이번에는 저축률이 사람마다 다르다고 해 보겠습니다. 거의 다 쓰는 사람도 있고 거의 다 모으는 사람도 있습니다. 그러면 오른쪽 끝, 평균의 다섯 배가 넘는 칸에 사람이 쌓이기 시작합니다. 오른쪽 로렌츠 곡선은 평등선에서 더 멀어집니다.',
-    '(→) 같은 사람들을 다시 지도 위에 놓고 자산을 점의 크기로 나타냈습니다. 대부분은 작고 몇 명만 아주 큽니다. 이런 분포를 긴 꼬리, 또는 파레토 분포라고 부릅니다. 실제 소득 자료에서도 하위 대다수는 앞에서 본 지수 분포를 따르고, 상위 몇 퍼센트만 이런 긴 꼬리를 따른다고 보고되어 있습니다.'],
-  caveats:['각 사람의 저축률은 0과 1 사이에서 무작위로 정해져 고정된다. 이 모형의 정상 분포는 꼬리가 멱법칙(파레토 지수 약 1)을 따른다.',
-    '저축률이 높은 사람일수록 자산이 천천히 불어나므로 정상 상태에 도달하는 데 오래 걸린다. 발표 중에는 꼬리가 자라는 과정을 보게 된다. 히스토그램의 맨 오른쪽 칸은 그 이상을 모두 모은 칸이다.',
-    '실제 자료: 미국·영국의 소득·자산은 하위 약 97%가 지수 분포, 상위가 멱법칙 꼬리라는 분석이 있다(Drăgulescu & Yakovenko 2001).',
-    '출처: Chatterjee, Chakrabarti & Manna (2004); Drăgulescu & Yakovenko (2001).'] },
-{ title:'6. 응축 — 승자독식', key:'공정한 내기에서 나오는 집중',
-  steps:[
-    {mode:'exMap',line:'eqLine',line2:'lorenz',texts:[],reset:true,v:{rule:'yard',exRate:EX.rateYard[0]},P:{lorenz:1}},
-    {texts:['cond'],v:{exRate:EX.rateYard[1]},P:{lorenz:1}},
-    {texts:['winner'],P:{lorenz:1}} ],
-  script:['마지막 규칙입니다. 다시 모두 100원으로 시작합니다. 두 사람이 만나 동전을 던지고, 이긴 쪽이 판돈을 가져갑니다. 판돈은 둘 중 가난한 쪽이 가진 돈의 4분의 1입니다. 확률은 정확히 반반이고 누구에게도 유리하지 않은 내기입니다.',
-    '(→) 그런데 시간을 빨리 돌리면 돈이 점점 소수에게 모입니다. 지니계수는 1을 향해 올라갑니다. 한번 가난해지면 걸 수 있는 판돈이 작아져서 되찾기 어렵기 때문입니다. 물리학자들은 이 현상을 응축이라고 부릅니다. 기체가 식어 한곳에 맺히는 것처럼 돈이 한곳에 맺힌다는 뜻입니다.',
-    '(→) 경제의 말로는 승자독식입니다. 누가 반칙을 해서가 아니라 공정한 규칙이 반복된 결과라는 점이 이 모형이 보여 주는 내용입니다. 그래서 이런 모형에서는 재분배 규칙을 넣었을 때 분포가 어떻게 달라지는지를 함께 연구합니다.'],
-  caveats:['이 규칙은 야드세일(yard-sale) 모형으로 불린다. 재분배가 없으면 자산이 결국 한 사람에게 모인다는 것이 알려져 있고, 약한 재분배(세금)를 넣으면 실제와 비슷한 분포가 유지된다(Boghosian 2014).',
-    '"자산 응축(wealth condensation)"이라는 용어는 Bouchaud & Mézard (2000)에서 쓰였다. 그 논문의 모형은 여기서 보인 것과 다른 모형이지만, 소수가 전체 자산의 유한한 몫을 차지하는 상태를 같은 말로 부른다.',
-    '물리의 응축(예: 보스-아인슈타인 응축)과 경제의 승자독식은 같은 현상이 아니다. 하나에 집중된다는 형태가 닮았을 뿐이며, 실제 승자독식에는 네트워크 효과, 규모의 경제 같은 별도의 원인이 있다.',
-    '화면의 수치는 모형 시뮬레이션이며 실제 통계가 아니다. ↑↓ 키로 속도를 바꿀 수 있다.',
-    '출처: Bouchaud & Mézard (2000); Chakraborti (2002); Boghosian (2014).'] },
-{ title:'7. 엔딩 — 미시에서 거시로', key:'개별의 무작위성에서 집단의 규칙성으로',
+    {mode:'people',line:'share',line2:null,reset:true,v:{rule:'yard',exRate:EX.rateYard[0]},P:{share:1}},
+    {v:{exRate:EX.rateYard[1]}} ],
+  script:['뭉쳐 있던 입자들을 다시 사람으로 바꾼다. 500명이 똑같이 100원씩 가지고 시작한다. 이번 규칙은 내기이다. 두 사람이 만나 동전을 던지고 이긴 쪽이 판돈을 가져간다. 판돈은 둘 중 가난한 쪽이 가진 돈의 4분의 1이다. 확률은 반반이고 누구에게도 유리하지 않다. 점의 크기가 가진 돈이다.',
+    '(→) 거래를 빠르게 돌린다. 오른쪽 그래프는 가장 부유한 1%, 즉 5명이 가진 돈의 비율이다. 처음에는 1%였던 것이 계속 올라간다. 한번 가난해지면 걸 수 있는 판돈이 작아져 되찾기 어렵기 때문이다. 입자가 바닥 상태 하나로 몰린 것과 같은 모양이다. 경제물리학에서는 이를 자산 응축이라고 부른다. 2001년 비안코니와 바라바시는 경쟁하는 네트워크에서 한 곳이 연결을 독차지하는 상태가 보스-아인슈타인 응축과 같은 수식으로 기술된다는 것을 보였다.'],
+  caveats:['이 내기 규칙은 야드세일(yard-sale) 모형이다. 재분배가 없으면 자산이 결국 한 사람에게 모이고, 약한 재분배(세금)를 넣으면 실제와 비슷한 분포가 유지된다(Boghosian 2014).',
+    '"자산 응축(wealth condensation)"은 Bouchaud & Mézard (2000)의 용어이다. 그 논문의 모형은 화면의 모형과 다르지만 소수가 전체 자산의 유한한 몫을 차지하는 상태를 가리킨다.',
+    'Bianconi & Barabási (2001)의 대응은 네트워크 모형에 대한 것이다: 노드의 적합도가 에너지 준위에, 연결 수가 점유수에 대응한다. 화면의 내기 모형이 보스-아인슈타인 통계를 따른다는 뜻은 아니다. 공통점은 하나에 집중된다는 구조이다.',
+    '물리의 응축과 경제의 승자독식은 같은 현상이 아니다. 실제 승자독식에는 네트워크 효과, 규모의 경제 같은 별도의 원인이 있다.',
+    '화면의 수치는 모형 시뮬레이션이며 실제 통계가 아니다. ↑↓ 키로 거래 속도를 바꿀 수 있다.'] },
+{ title:'6. 엔딩', key:'개별의 무작위성과 집단의 규칙성',
+  ref:[''],
   steps:[
     {mode:'scatter',line:'dash',line2:null,P:{trail:40}},
     {mode:'merge',line:'mergeLine',P:{trail:40,light:1}},
     {line:'underline',texts:['end'],P:{trail:0,light:1}},
     {line:'refLine',texts:['refsTitle','refs'],P:{trail:0,light:1}} ],
-  script:['입자들을 다시 풀어 줍니다. 한 사람 한 사람이 어디로 갈지는 알 수 없습니다.',
-    '(→) 하지만 모아 놓고 보면 하나의 선이 됩니다. 처음의 수평선입니다.',
-    '(→) 개별의 무작위성에서 집단의 규칙성으로. 오늘 본 모형들은 사람을 아주 단순하게 가정했습니다. 사람은 분자와 달리 판단하고 기대하고 전략을 바꿉니다. 그럼에도 단순한 규칙만으로 실제 분포의 큰 윤곽이 나온다는 점이 통계물리학이 경제를 바라보는 방식입니다. 감사합니다.',
-    '(→) 참고문헌입니다. (질의응답 때 띄워 둔다)'],
-  caveats:['결론은 물리와 경제가 같다는 것이 아니다. 미시적 무작위성에서 거시적 규칙성이 나오는 구조를 같은 수학으로 모형화할 수 있다는 것이다.',
-    '모형의 공통 가정: 총자산 일정, 무작위 만남, 단순한 교환 규칙. 실제 사람은 정보를 받아들이고 기대와 선호를 바꾸며 전략적으로 행동한다.'] }
+  script:['입자들을 다시 풀어 준다. 하나하나가 어디로 갈지는 알 수 없다.',
+    '(→) 모아 놓으면 하나의 선이 된다. 처음의 수평선이다.',
+    '(→) 한 사람의 거래는 예측할 수 없다. 그러나 전체의 분포는 일정한 모양을 따른다. 오늘 본 모형들은 사람을 매우 단순하게 가정했다. 사람은 분자와 달리 판단하고 전략을 바꾼다. 그럼에도 단순한 규칙만으로 분포의 큰 윤곽을 설명할 수 있다는 것이 통계물리학이 경제를 바라보는 방식이다.',
+    '(→) 참고문헌이다.'],
+  caveats:['물리와 경제가 같다는 결론이 아니다. 미시적 무작위성에서 거시적 규칙성이 나오는 구조를 같은 수학으로 모형화할 수 있다는 것이다.',
+    '모형의 공통 가정: 총자산 일정, 무작위 만남, 단순한 교환 규칙.'] }
 ];
 const STEPS = [];
 SCENES.forEach((sc, si) => { let acc = { mode:'sky', line:'horizon', line2:null, texts:[], fa:'', fb:'', v:{} };
   sc.steps.forEach((s, k) => { acc = { mode:s.mode||acc.mode, line:s.line||acc.line, line2:('line2' in s)?s.line2:acc.line2,
-      texts:s.texts||acc.texts, fa:('fa' in s)?s.fa:acc.fa, fb:('fb' in s)?s.fb:acc.fb, v:Object.assign({},acc.v,s.v||{}), P:s.P||{} };
+      texts:s.texts||acc.texts, fa:('fa' in s)?s.fa:acc.fa, fb:('fb' in s)?s.fb:acc.fb, v:Object.assign({},acc.v,s.v||{}), P:s.P||acc.P||{} };
     STEPS.push(Object.assign({ scene:si, k, n:sc.steps.length, reset:!!s.reset }, acc)); }); });
 
 let cur = -1, notesWin = null;
@@ -586,27 +841,17 @@ function go(i){
 function adjust(d){
   const sc = STEPS[cur].scene;
   if(sc===1) V.gasT = clamp(V.gasT*(d>0?1.12:1/1.12), 0.15, 5);
-  else if(sc===3) V.lam = clamp(Math.round((V.lam+d*0.05)*100)/100, 0, 0.85);
-  else if(sc===2||sc===4||sc===5) V.exRate = clamp(V.exRate*(d>0?1.6:1/1.6), 0.5, 20000);
-  updateMeta(true);
+  else if(sc===3) V.qT = clamp(V.qT*(d>0?1.07:1/1.07), 0.03, 2);
+  else if(sc===2||sc===4) V.exRate = clamp(V.exRate*(d>0?1.6:1/1.6), 0.5, 20000);
 }
-const fmt = n => Math.round(n).toLocaleString('en-US');
-function metaText(){
-  const s = STEPS[cur]; let t = 0;
-  switch(s.scene){
-    case 0: return s.k===0 ? '' : (s.k===1 ? '시뮬레이션' : (csvMode ? '왼쪽 시뮬레이션 · 오른쪽 실제 데이터 ('+csvName+', n='+csvCount+')' : '두 그래프 모두 시뮬레이션 (실제 지수 아님)'))+'  ·  Bachelier (1900), Einstein (1905)';
-    case 1: return '분자 '+N+'개  ·  총에너지 일정';
-    case 2: for(let i=0;i<N;i++) t+=money[i]; return N+'명  ·  총자산 '+fmt(t)+' (일정)  ·  거래 '+fmt(exCount)+'회  ·  Drăgulescu & Yakovenko (2000)';
-    case 3: return '저축률 '+Math.round(V.lam*100)+'%  ·  Chakraborti & Chakrabarti (2000)';
-    case 4: return '저축률이 사람마다 다름  ·  Chatterjee, Chakrabarti & Manna (2004)';
-    case 5: return '동전 던지기 내기 · 판돈은 가난한 쪽 자산의 '+Math.round(CONFIG.exchange.yardFraction*100)+'%  ·  Bouchaud & Mézard (2000), Boghosian (2014)';
-    default: return '';
-  }
+function metaText(){   // 왼쪽 아래에는 참고문헌(과 자료 출처)만 표시한다
+  const s = STEPS[cur], r = SCENES[s.scene].ref, t = r[Math.min(s.k, r.length-1)];
+  if(t!=='@data') return t;
+  return 'Bachelier (1900) · Einstein (1905) · '+(csvMode ? '주가: '+csvName : '주가: 시뮬레이션 (실제 지수 아님)')+' · 분자: 시뮬레이션';
 }
 let metaAcc = 0;
 function updateMeta(force){
   if(cur<0) return; const s = STEPS[cur];
-  if(force) mBR.textContent = (s.scene+1)+' / '+SCENES.length;
   const t = metaText(); if(mBL.textContent!==t) mBL.textContent = t;
 }
 function notesHTML(){
@@ -661,7 +906,7 @@ function rampColor(c){ // 0 깊은 하늘색 → 0.5 하늘색 → 1 흰색 (밝
   return mix(d, n, lightK);
 }
 function label(s, x, y, size, a, align, weight){
-  ctx.globalAlpha = a; ctx.font = (weight||400)+' '+size+'px '+SANS; ctx.textAlign = align||'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText(s, x, y);
+  ctx.globalAlpha = a; ctx.font = (weight||500)+' '+size+'px '+SANS; ctx.textAlign = align||'left'; ctx.textBaseline = 'alphabetic'; ctx.fillText(s, x, y);
 }
 function seg(x0,y0,x1,y1){ ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); }
 function hair(a, color, w){ ctx.globalAlpha=a; ctx.strokeStyle=color||SKY; ctx.lineWidth=w||1; ctx.stroke(); }
@@ -675,31 +920,50 @@ function drawBackground(){
     w.addColorStop(0,'rgba(255,196,140,0)'); w.addColorStop(0.64,'rgba(255,196,140,'+(0.11*P.warm)+')'); w.addColorStop(0.66,'rgba(255,196,140,'+(0.05*P.warm)+')'); w.addColorStop(1,'rgba(255,196,140,0)');
     ctx.fillStyle = w; ctx.fillRect(0,y-90,W,140); }
 }
+const LS = 23, LA = 0.88;                      // 그래프 인덱스 글자 크기 · 불투명도
 function drawDecor(){
   let a;
-  /* 기체: 에너지 분포 막대 */
-  if((a=P.gasHist)>0.01){ const bw=(GH.x1-GH.x0)/GH.nb; ctx.globalAlpha=0.3*a; ctx.fillStyle=SKY;
-    for(let b=0;b<GH.nb;b++){ const h=gasHist[b]*GH.scale*a; ctx.fillRect(GH.x0+b*bw+2,GH.base-h,bw-4,h); }
-    ctx.beginPath(); seg(GH.x0,GH.base+0.5,GH.x0+(GH.x1-GH.x0)*a,GH.base+0.5); hair(0.6*a,INK);
-    ctx.fillStyle=INK; label('에너지 →',GH.x1,GH.base+32,17,0.55*a,'right'); label('0',GH.x0,GH.base+32,17,0.55*a);
-    label('분자 수',GH.x0,GH.base-GH.scale*0.2-14,17,0.55*a); }
+  /* 기체 상자 윤곽 (선이 다른 그래프가 되어 떠난 뒤에도 남는다) */
+  if((mode==='gas'||mode==='split') && hero.shape!=='box'){ ctx.beginPath(); ctx.rect(P.bx,P.by,P.bw,P.bh); hair(0.9,INK,2); }
+  /* 기체: 속력 분포 막대 */
+  if((a=P.gasHist)>0.01){ const bw=(P.gX1-P.gX0)/GH.nb; ctx.globalAlpha=0.32*a; ctx.fillStyle=SKY;
+    for(let b=0;b<GH.nb;b++){ const h=gasHist[b]*P.gScale*a; ctx.fillRect(P.gX0+b*bw+2,P.gBase-h,bw-4,h); }
+    ctx.beginPath(); seg(P.gX0,P.gBase+0.5,P.gX0+(P.gX1-P.gX0)*a,P.gBase+0.5); hair(0.7*a,INK,1.5);
+    ctx.fillStyle=INK; label('속력 →',P.gX1,P.gBase+38,LS,LA*a,'right'); label('0',P.gX0,P.gBase+38,LS,LA*a);
+    label('분자 수',P.gX0,P.gBase-P.gScale*0.14,LS,LA*a); }
   /* 거래선 */
-  if(routes.length && (mode==='exMap'||mode==='exHist')){ ctx.beginPath();
+  if(routes.length && (mode==='split'||mode==='people')){ ctx.beginPath();
     for(const r of routes){ const x0=px[r.i],y0=py[r.i],x1=px[r.j],y1=py[r.j],d=Math.hypot(x1-x0,y1-y0),cxp=(x0+x1)/2,cyp=(y0+y1)/2-d*0.22;
       const p=r.t/r.d, hd=clamp(p*1.6,0,1), tl=clamp(p*1.6-0.6,0,1), n=14;
       for(let q=0;q<=n;q++){ const u=tl+(hd-tl)*q/n, w=1-u, X=w*w*x0+2*w*u*cxp+u*u*x1, Y=w*w*y0+2*w*u*cyp+u*u*y1; if(q) ctx.lineTo(X,Y); else ctx.moveTo(X,Y); } }
     hair(0.55,SKY,1); }
-  /* 자산 히스토그램 축 */
-  if((a=P.exAxis)>0.01){ ctx.fillStyle=INK; label('0',EXB.x0-2,EXB.base+42,17,0.55*a); label('가진 돈 →',EXB.x0+EXB.nb*EXB.pitch,EXB.base+42,17,0.55*a,'right');
-    const xm=EXB.x0+CONFIG.exchange.initial/EXB.bw*EXB.pitch-5; ctx.beginPath(); seg(xm,EXB.base+9,xm,EXB.base+9+14*a); hair(0.7*a,INK); label('평균',xm,EXB.base+42,17,0.55*a,'center'); }
-  /* 로렌츠 곡선 패널 */
-  if((a=P.lorenz)>0.01){ const x0=LZ.x0, y1=LZ.y0+LZ.s, s=LZ.s;
-    ctx.beginPath(); seg(x0,y1,x0+s*a,y1); seg(x0+s,y1,x0+s,y1-s*a); hair(0.5*a,INK);
-    if(hero.shape!=='eqLine'){ ctx.beginPath(); seg(x0,y1,x0+s*a,y1-s*a); hair(0.35*a,INK); }
-    ctx.fillStyle=INK; label('사람 (가난한 순) →',x0,y1+32,17,0.55*a); label('누적 자산',x0+s+12,LZ.y0+16,17,0.55*a);
-    label('완전 평등',x0+s*0.3-14,y1-s*0.3-22,15,0.5*a,'right');
-    label('지니계수',x0,y1+92,20,0.6*a); label(gini.toFixed(2),x0+96,y1+96,34,0.95*a,'left',600);
-    label('상위 10%의 몫',x0+210,y1+92,20,0.6*a); label(Math.round(top10*100)+'%',x0+350,y1+96,34,0.95*a,'left',600); }
+  /* 사람: 자산 분포 막대 */
+  if((a=P.mHist)>0.01){ const bw=(MH.x1-MH.x0)/MH.nb; ctx.globalAlpha=0.32*a; ctx.fillStyle=SKY;
+    for(let b=0;b<MH.nb;b++){ const h=Math.min(330,monHist[b]*MH.px)*a; ctx.fillRect(MH.x0+b*bw+2,MH.base-h,bw-4,h); }
+    ctx.beginPath(); seg(MH.x0,MH.base+0.5,MH.x0+(MH.x1-MH.x0)*a,MH.base+0.5); hair(0.7*a,INK,1.5);
+    ctx.fillStyle=INK; label('가진 돈 →',MH.x1,MH.base+38,LS,LA*a,'right'); label('0',MH.x0,MH.base+38,LS,LA*a);
+    label('사람 수',MH.x0,MH.base-280,LS,LA*a); }
+  /* 트랩과 에너지 준위 */
+  if((a=P.trap)>0.01){ ctx.beginPath();
+    for(let k=0;k<QL;k++){ const w=levW(k)*a, y=levY(k); seg(TRAP.cx-w,y,TRAP.cx+w,y); } hair(0.34*a,SKY,1);
+    if(hero.shape!=='parabola'){ ctx.beginPath(); for(let q=0;q<=80;q++){ const s=-1+2*q/80, e=s*s*(QL-0.4)-0.6, X=TRAP.cx+s*TRAP.wmax, Y=TRAP.yb-e*TRAP.dy; if(q) ctx.lineTo(X,Y); else ctx.moveTo(X,Y); } hair(0.4*a,INK,1.2); }
+    ctx.fillStyle=INK;
+    if(mode==='levels'){ for(let k=1;k<QL;k++) label(String(Q.cnt[k]),TRAP.cx+levW(k)+16,levY(k)+7,18,0.7*a);
+      label('바닥 상태  '+Q.cnt[0]+'개',TRAP.cx+levW(0)+70,levY(0)+40,26,0.95*a,'left',600); }
+    label('에너지 ↑',TRAP.cx-TRAP.wmax-20,levY(QL-1)-34,LS,LA*a); label('입자 수',TRAP.cx+TRAP.wmax+14,levY(QL-1)-34,LS,LA*a,'left'); }
+  /* 바닥 상태 비율 – 온도 */
+  if((a=P.plotFr)>0.01){ ctx.beginPath(); seg(PLOT.x0,PLOT.y1,PLOT.x0+(PLOT.x1-PLOT.x0)*a,PLOT.y1); seg(PLOT.x0,PLOT.y1,PLOT.x0,PLOT.y1-(PLOT.y1-PLOT.y0)*a); hair(0.7*a,INK,1.5);
+    const xc=(PLOT.x0+PLOT.x1)/2; ctx.setLineDash([4,7]); ctx.beginPath(); seg(xc,PLOT.y1,xc,PLOT.y1-(PLOT.y1-PLOT.y0)*a); hair(0.5*a,SKY); ctx.setLineDash([]);
+    ctx.fillStyle=INK; label('임계 온도',xc,PLOT.y1+38,LS,LA*a,'center'); label('0',PLOT.x0,PLOT.y1+38,LS,LA*a,'center'); label('온도 →',PLOT.x1,PLOT.y1+38,LS,LA*a,'right');
+    label('100%',PLOT.x0-14,PLOT.y0+8,LS,LA*a,'right'); label('바닥 상태에 있는 입자의 비율',PLOT.x0,PLOT.y0-26,LS,LA*a);
+    if(hero.shape==='frac'){ const f=EASE(hero.t)*a, X=PLOT.x0+clamp(Q.Tcur/2,0,1)*(PLOT.x1-PLOT.x0), Y=PLOT.y1-(Q.n0/QN)*(PLOT.y1-PLOT.y0);
+      ctx.globalAlpha=f; ctx.beginPath(); ctx.arc(X,Y,8,0,6.2832); ctx.fill(); label(Math.round(Q.n0/QN*100)+'%',X+18,Y-14,28,0.95*f,'left',600); } }
+  /* 상위 1%의 몫 – 거래 횟수 */
+  if((a=P.share)>0.01){ ctx.beginPath(); seg(PLOT.x0,PLOT.y1,PLOT.x0+(PLOT.x1-PLOT.x0)*a,PLOT.y1); seg(PLOT.x0,PLOT.y1,PLOT.x0,PLOT.y1-(PLOT.y1-PLOT.y0)*a); hair(0.7*a,INK,1.5);
+    ctx.fillStyle=INK; label('거래 횟수 →',PLOT.x1,PLOT.y1+38,LS,LA*a,'right'); label('0',PLOT.x0,PLOT.y1+38,LS,LA*a,'center');
+    label('100%',PLOT.x0-14,PLOT.y0+8,LS,LA*a,'right'); label('가장 부유한 1%가 가진 돈의 비율',PLOT.x0,PLOT.y0-26,LS,LA*a);
+    if(hero.shape==='share'&&shareN>0){ const f=EASE(hero.t)*a, X=PLOT.x0+(shareN-1)/(SH.n-1)*(PLOT.x1-PLOT.x0), Y=PLOT.y1-topShare*(PLOT.y1-PLOT.y0);
+      ctx.globalAlpha=f; ctx.beginPath(); ctx.arc(X,Y,8,0,6.2832); ctx.fill(); label(Math.round(topShare*100)+'%',X-16,Y-18,28,0.95*f,'right',600); } }
   /* 이름표 옆 색 표시 */
   if(flapA.cells[0].w>0.03){ ctx.beginPath(); seg(SER.aX0,SER.fy-18,SER.aX0+70*flapA.cells[0].w,SER.fy-18); hair(1,INK,2.4); }
   if(flapB.cells[0].w>0.03){ ctx.beginPath(); seg(SER.bX0,SER.fy-18,SER.bX0+70*flapB.cells[0].w,SER.fy-18); hair(1,SKY,2.4); }
@@ -758,11 +1022,11 @@ function frame(now){
 
 /* ---------- 시작 ---------- */
 (function boot(){
-  const emb = document.getElementById('stock-csv').textContent.trim(); if(emb) applyCSV(emb, 'embedded CSV');
+  const emb = document.getElementById('stock-csv').textContent.trim(); if(emb) applyCSV(emb, CONFIG.data.label);
   const m = /^#s(\d+)$/.exec(location.hash); const start = m ? clamp(+m[1],0,STEPS.length-1) : 0;
   go(0); if(start>0){ go(start); for(const k in P) P[k]=PT[k]; hero.jump(STEPS[start].line); }
   window.__deck = { go, adjust, applyCSV, STEPS, SCENES, CONFIG, V, P,
-    state:()=>({ quality, backing:cv.width, step:cur, scene:STEPS[cur].scene, mode, frames, money:Array.from(money), gini, top10, lamCur, gasTm, gasHist:Array.from(gasHist), exCount, csvMode, light:lightK }) };
+    state:()=>({ quality, backing:cv.width, step:cur, scene:STEPS[cur].scene, mode, frames, money:Array.from(money), topShare, shareN, gasTm, gasHist:Array.from(gasHist), monHist:Array.from(monHist), exCount, csvMode, light:lightK, qT:Q.Tcur, n0:Q.cnt[0], cnt:Array.from(Q.cnt) }) };
   requestAnimationFrame(t => { last = t - 16; requestAnimationFrame(frame); });
 })();
 </script>
